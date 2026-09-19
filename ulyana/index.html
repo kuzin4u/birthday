@@ -521,9 +521,12 @@ greetAudio.preload = 'auto';
 
 // Разблокируем аудио при первом нажатии (мобильные браузеры)
 function unlockAudio(){
-  pbnAudio.play().then(()=>{pbnAudio.pause();pbnAudio.currentTime=0}).catch(()=>{});
-  hbAudio.play().then(()=>{hbAudio.pause();hbAudio.currentTime=0}).catch(()=>{});
-  greetAudio.play().then(()=>{greetAudio.pause();greetAudio.currentTime=0}).catch(()=>{});
+  // Разблокируем аудио беззвучно — volume=0
+  [pbnAudio, hbAudio, greetAudio].forEach(a=>{
+    const origVol = a.volume;
+    a.volume = 0;
+    a.play().then(()=>{a.pause();a.currentTime=0;a.volume=origVol}).catch(()=>{a.volume=origVol});
+  });
   document.removeEventListener('click',unlockAudio);
   document.removeEventListener('touchstart',unlockAudio);
 }
@@ -573,7 +576,7 @@ async function launch(){
   await W(3000); // даём музыке зазвучать 3 секунды
 
   // Приглушаем музыку — начинается голосовое поздравление
-  pbnAudio.volume = 0.25;
+  pbnAudio.volume = 0.08;
 
   // Ульф говорит — записанное аудио поздравление (26 сек)
   const greetStart = Date.now();
@@ -602,7 +605,7 @@ async function launch(){
   greetAudio.pause();
 
   // Плавно возвращаем громкость музыки (не резко)
-  let gv = 0.25;
+  let gv = 0.08;
   const fadeUp = setInterval(()=>{
     gv += 0.02;
     if(gv >= 0.45){ pbnAudio.volume = 0.45; clearInterval(fadeUp); }
@@ -815,7 +818,7 @@ async function toFinale(){
   conf($('fcard'),40);
 
   // Приглушаем музыку — начинается голос поздравления
-  pbnAudio.volume = 0.25;
+  pbnAudio.volume = 0.08;
 
   const txt=`Ульяна! Поздравляю тебя с твоим восьмым днём рождения! 🎉
 
