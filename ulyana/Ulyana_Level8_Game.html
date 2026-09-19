@@ -524,11 +524,12 @@ greetAudio.preload = 'auto';
 
 // Разблокируем аудио при первом нажатии (мобильные браузеры)
 function unlockAudio(){
-  // Фоллбек — разблокируем аудио при любом тапе
-  [pbnAudio, greetAudio, hbAudio].forEach(a=>{
-    const v=a.volume; a.volume=0;
-    a.play().then(()=>{a.pause();a.currentTime=0;a.volume=v}).catch(()=>{a.volume=v});
-  });
+  pbnAudio.volume=0; pbnAudio.play().catch(()=>{});
+  greetAudio.volume=0; greetAudio.play().catch(()=>{});
+  hbAudio.volume=0; hbAudio.play().catch(()=>{});
+  setTimeout(()=>{
+    [pbnAudio,greetAudio,hbAudio].forEach(a=>{a.pause();a.currentTime=0});
+  },50);
   document.removeEventListener('click',unlockAudio);
   document.removeEventListener('touchstart',unlockAudio);
 }
@@ -559,11 +560,14 @@ function stopPustBegut(){
 
 /* 0:00–0:05 — Launch with jingle + confetti */
 async function launch(){
-  // Разблокируем ВСЕ аудио в контексте жеста пользователя (до await!)
-  [pbnAudio, greetAudio, hbAudio].forEach(a=>{
-    const v=a.volume; a.volume=0;
-    a.play().then(()=>{a.pause();a.currentTime=0;a.volume=v}).catch(()=>{a.volume=v});
-  });
+  // Разблокируем ВСЕ аудио в контексте жеста (до await!)
+  pbnAudio.volume=0; pbnAudio.play().catch(()=>{});
+  greetAudio.volume=0; greetAudio.play().catch(()=>{});
+  hbAudio.volume=0; hbAudio.play().catch(()=>{});
+  // Через 50мс паузим и сбрасываем (до первого await через 1800мс)
+  setTimeout(()=>{
+    [pbnAudio,greetAudio,hbAudio].forEach(a=>{a.pause();a.currentTime=0});
+  },50);
   playJingle();
   conf($('s0').querySelector('.gc'),60);
   nflash($('s0').querySelector('.gc'));
