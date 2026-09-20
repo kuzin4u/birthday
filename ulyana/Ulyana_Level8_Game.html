@@ -245,7 +245,7 @@ const PHOTOS=[
   'IMG_2912.PNG',
   'IMG_3699.HEIC','IMG_4405.HEIC',
   'share-photo-40154669688.jpeg','share-photo-40154669944.jpeg',
-  'share-photo-40154670456.jpeg','share-photo-44841475328.jpeg',
+  'share-photo-40154670456.jpeg',
   'share-photo-44841517824.jpeg','share-photo-44841552640.jpeg',
   'share-photo-44841613056.jpeg','share-photo-44841694208.jpeg',
   'share-photo-44841732352.jpeg','share-photo-44841786624.jpeg',
@@ -589,10 +589,22 @@ async function launch(){
   // Приглушаем музыку — начинается голосовое поздравление
   pbnAudio.volume = 0.02;
 
-  // Ульф говорит — записанное аудио поздравление (26 сек)
+  // Ульф говорит — записанное аудио поздравление (26 сек, усиленное)
   const greetStart = Date.now();
   greetAudio.currentTime = 0;
   greetAudio.volume = 1.0;
+  // Усиливаем громкость через Web Audio API (gain > 1.0)
+  try{
+    if(!window._greetCtx){
+      window._greetCtx = new (window.AudioContext||window.webkitAudioContext)();
+      const src = window._greetCtx.createMediaElementSource(greetAudio);
+      window._greetGain = window._greetCtx.createGain();
+      src.connect(window._greetGain);
+      window._greetGain.connect(window._greetCtx.destination);
+    }
+    window._greetCtx.resume();
+    window._greetGain.gain.value = 2.5;
+  }catch(e){}
   greetAudio.play().catch(()=>{});
 
   // Текст печатается параллельно с аудио
